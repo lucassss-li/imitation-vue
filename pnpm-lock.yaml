@@ -9,6 +9,7 @@ specifiers:
   '@typescript-eslint/parser': ^5.16.0
   babel-jest: ^27.5.1
   eslint: ^8.11.0
+  eslint-config-prettier: ^8.5.0
   husky: ^7.0.4
   jest: ^27.5.1
   lint-staged: ^12.3.7
@@ -24,6 +25,7 @@ devDependencies:
   '@typescript-eslint/parser': 5.16.0_eslint@8.11.0+typescript@4.6.2
   babel-jest: 27.5.1_@babel+core@7.17.8
   eslint: 8.11.0
+  eslint-config-prettier: 8.5.0_eslint@8.11.0
   husky: 7.0.4
   jest: 27.5.1
   lint-staged: 12.3.7
@@ -2352,6 +2354,15 @@ packages:
       optionator: 0.8.3
     optionalDependencies:
       source-map: 0.6.1
+    dev: true
+
+  /eslint-config-prettier/8.5.0_eslint@8.11.0:
+    resolution: {integrity: sha512-obmWKLUNCnhtQRKc+tmnYuQl0pFU1ibYJQ5BGhTVB08bHe9wC8qUeG7c08dj9XX+AuPj1YSGSQIHl1pnDHZR0Q==}
+    hasBin: true
+    peerDependencies:
+      eslint: '>=7.0.0'
+    dependencies:
+      eslint: 8.11.0
     dev: true
 
   /eslint-scope/5.1.1:
