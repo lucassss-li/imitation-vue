@@ -37,3 +37,7 @@ export function isReadonly<T extends object>(raw: T): boolean {
 export function shallowReadonly<T extends object>(target: T): RestoreType<T> {
     return createActiveObject<T>(target, shallowReadonlyHandler)
 }
+
+export function isProxy(val) {
+    return isReactive(val) || isReadonly(val)
+}
