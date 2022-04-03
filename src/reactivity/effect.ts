@@ -26,30 +26,37 @@ class ReactiveEffect {
 
 const targetMap = new Map()
 export function track<T>(target: T, key: string | symbol) {
-    let depsMap = targetMap.get(target)
-    if (!depsMap) {
-        depsMap = new Map()
-        targetMap.set(target, depsMap)
-    }
-    let dep = depsMap.get(key)
-    if (!dep) {
-        dep = new Set()
-        depsMap.set(key, dep)
-    }
     if (activeEffect) {
-        dep.add(activeEffect)
-        activeEffect.deps.add(dep)
+        let depsMap = targetMap.get(target)
+        if (!depsMap) {
+            depsMap = new Map()
+            targetMap.set(target, depsMap)
+        }
+        let dep = depsMap.get(key)
+        if (!dep) {
+            dep = new Set()
+            depsMap.set(key, dep)
+        }
+        if (!dep.has(activeEffect)) {
+            dep.add(activeEffect)
+            activeEffect.deps.add(dep)
+        }
     }
 }
 
 export function trigger<T>(target: T, key: string | symbol) {
     const depsMap = targetMap.get(target)
-    const dep = depsMap.get(key)
-    for (const effect of dep) {
-        if (effect.scheduler) {
-            effect.scheduler()
-        } else {
-            effect.run()
+    let dep
+    if (depsMap) {
+        dep = depsMap.get(key)
+    }
+    if (dep) {
+        for (const effect of dep) {
+            if (effect.scheduler) {
+                effect.scheduler()
+            } else {
+                effect.run()
+            }
         }
     }
 }

@@ -22,7 +22,7 @@ describe('effect', () => {
         arr[2] = 10
         expect(num).toBe(10)
     })
-    test('', () => {
+    test('complex', () => {
         let a = 0
         effect(() => {
             a++
@@ -32,6 +32,13 @@ describe('effect', () => {
         expect(a).toBe(1)
         observed.foo++
         expect(a).toBe(1)
+        let b = 0
+        effect(() => {
+            b = observed.foo
+        })
+        expect(b).toBe(2)
+        observed.foo++
+        expect(b).toBe(3)
     })
     test('runner', () => {
         let foo = 1

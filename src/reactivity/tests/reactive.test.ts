@@ -1,4 +1,4 @@
-import { reactive } from '../reactive'
+import { reactive, isReactive } from '../reactive'
 describe('reactive', () => {
     test('object', () => {
         const original = { foo: 1 }
@@ -11,5 +11,19 @@ describe('reactive', () => {
         const observed = reactive(original)
         expect(observed).not.toBe(original)
         expect(observed[1]).toBe(original[1])
+    })
+    test('isReactive', () => {
+        const original = { foo: 1 }
+        const observed = reactive(original)
+        expect(isReactive(observed)).toBe(true)
+        expect(isReactive(original)).toBe(false)
+    })
+
+    test('nested reactive check', () => {
+        const original = { a: { foo: 1 }, b: [1, 2, 3] }
+        const observed = reactive(original)
+        expect(isReactive(observed)).toBe(true)
+        expect(isReactive(observed.a)).toBe(true)
+        expect(isReactive(observed.b)).toBe(true)
     })
 })
