@@ -1,9 +1,27 @@
 class ReactiveEffect {
+    deps = new Set<Set<ReactiveEffect>>()
+    active = true
     run() {
         activeEffect = this
-        this.fn()
+        const res = this.fn()
+        activeEffect = null
+        return res
     }
-    constructor(private fn: () => void) {}
+    stop() {
+        if (this.active) {
+            this.deps.forEach(dep => dep.delete(this))
+            this.onStop && this.onStop()
+            this.active = false
+        }
+    }
+    public scheduler?: () => void
+    public onStop?: () => void
+    constructor(
+        private fn: () => void,
+        options: { scheduler?: () => void; onStop?: () => void },
+    ) {
+        Object.assign(this, options)
+    }
 }
 
 const targetMap = new Map()
@@ -13,24 +31,43 @@ export function track<T>(target: T, key: string | symbol) {
         depsMap = new Map()
         targetMap.set(target, depsMap)
     }
-    let dep = depsMap.get(target)
+    let dep = depsMap.get(key)
     if (!dep) {
         dep = new Set()
         depsMap.set(key, dep)
     }
-    dep.add(activeEffect)
+    if (activeEffect) {
+        dep.add(activeEffect)
+        activeEffect.deps.add(dep)
+    }
 }
 
 export function trigger<T>(target: T, key: string | symbol) {
     const depsMap = targetMap.get(target)
     const dep = depsMap.get(key)
     for (const effect of dep) {
-        effect.run()
+        if (effect.scheduler) {
+            effect.scheduler()
+        } else {
+            effect.run()
+        }
     }
 }
 
-let activeEffect: ReactiveEffect
-export function effect(fn: () => void) {
-    const _effect = new ReactiveEffect(fn)
+let activeEffect: ReactiveEffect | null
+export function effect(
+    fn: () => void,
+    options: { scheduler?: () => void; onStop?: () => void } = {},
+) {
+    const _effect = new ReactiveEffect(fn, options)
     _effect.run()
+    const runner = () => {
+        return _effect.run()
+    }
+    runner.effect = _effect
+    return runner
+}
+
+export function stop(runner: { effect: ReactiveEffect }): void {
+    runner.effect.stop()
 }
