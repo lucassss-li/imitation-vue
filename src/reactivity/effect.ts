@@ -1,4 +1,4 @@
-class ReactiveEffect {
+export class ReactiveEffect {
     deps = new Set<Set<ReactiveEffect>>()
     active = true
     run() {
@@ -37,10 +37,14 @@ export function track<T>(target: T, key: string | symbol) {
             dep = new Set()
             depsMap.set(key, dep)
         }
-        if (!dep.has(activeEffect)) {
-            dep.add(activeEffect)
-            activeEffect.deps.add(dep)
-        }
+        trackEffect(dep)
+    }
+}
+
+export function trackEffect(dep: Set<ReactiveEffect>) {
+    if (activeEffect && !dep.has(activeEffect)) {
+        dep.add(activeEffect)
+        activeEffect?.deps.add(dep)
     }
 }
 
@@ -50,6 +54,10 @@ export function trigger<T>(target: T, key: string | symbol) {
     if (depsMap) {
         dep = depsMap.get(key)
     }
+    triggerEffects(dep)
+}
+
+export function triggerEffects(dep: Set<ReactiveEffect>) {
     if (dep) {
         for (const effect of dep) {
             if (effect.scheduler) {
