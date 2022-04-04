@@ -18,7 +18,7 @@ export class ReactiveEffect {
     public onStop?: () => void
     constructor(
         private fn: () => void,
-        options: { scheduler?: () => void; onStop?: () => void },
+        options?: { scheduler?: () => void; onStop?: () => void },
     ) {
         Object.assign(this, options)
     }
