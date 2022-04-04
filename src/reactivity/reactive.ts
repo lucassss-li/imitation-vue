@@ -1,3 +1,4 @@
+import { isObject } from '../shared'
 import {
     mutableHandler,
     readonlyHandler,
@@ -38,6 +39,6 @@ export function shallowReadonly<T extends object>(target: T): RestoreType<T> {
     return createActiveObject<T>(target, shallowReadonlyHandler)
 }
 
-export function isProxy(val) {
-    return isReactive(val) || isReadonly(val)
+export function isProxy(val: unknown) {
+    return isObject(val) && (isReactive(val) || isReadonly(val))
 }

@@ -43,3 +43,20 @@ export function unRef<T>(val: RefImpl<T> | T): T {
         return val
     }
 }
+
+export function proxyRef<T extends object>(
+    val: T,
+): { [K in keyof T]: T[K] | unknown } {
+    return new Proxy(val, {
+        get(target, key) {
+            return unRef(Reflect.get(target, key))
+        },
+        set(target, key, value) {
+            if (isRef(Reflect.get(target, key)) && !isRef(value)) {
+                return (Reflect.get(target, key).value = value)
+            } else {
+                return Reflect.set(target, key, value)
+            }
+        },
+    })
+}

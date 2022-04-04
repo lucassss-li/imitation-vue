@@ -1,10 +1,12 @@
 import { effect } from '../effect'
-import { ref, isRef, unRef } from '../ref'
+import { ref, isRef, unRef, proxyRef } from '../ref'
 
 describe('ref', () => {
     test('happy path', () => {
-        const a = ref(1)
-        expect(a.value).toBe(1)
+        const num = ref(1)
+        expect(num.value).toBe(1)
+        const ob = ref({ foo: 1 })
+        expect(ob.value.foo).toBe(1)
     })
     test('should be reactive', () => {
         const a = ref(1)
@@ -53,5 +55,15 @@ describe('ref', () => {
         const a = ref(original)
         expect(unRef(a)).toBe(original)
         expect(unRef(1)).toBe(1)
+    })
+
+    test('proxyRef', () => {
+        const complex = { foo: 1, ob: ref(2) }
+        const proxy_complex = proxyRef(complex)
+        expect(proxy_complex.foo).toBe(1)
+        expect(proxy_complex.ob).toBe(2)
+        proxy_complex.foo = 2
+        proxy_complex.ob = 3
+        proxy_complex.ob = ref(4)
     })
 })
