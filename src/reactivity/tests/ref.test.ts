@@ -1,5 +1,5 @@
 import { effect } from '../effect'
-import { ref } from '../ref'
+import { ref, isRef, unRef } from '../ref'
 
 describe('ref', () => {
     test('happy path', () => {
@@ -35,5 +35,23 @@ describe('ref', () => {
         expect(dummy).toBe(1)
         a.value.count = 2
         expect(dummy).toBe(2)
+    })
+
+    test('isRef', () => {
+        const original = {
+            count: 1,
+        }
+        const a = ref(original)
+        expect(isRef(original)).toBe(false)
+        expect(isRef(a)).toBe(true)
+    })
+
+    test('unRef', () => {
+        const original = {
+            count: 1,
+        }
+        const a = ref(original)
+        expect(unRef(a)).toBe(original)
+        expect(unRef(1)).toBe(1)
     })
 })

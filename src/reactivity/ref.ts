@@ -4,7 +4,7 @@ import { reactive } from './reactive'
 
 class RefImpl<T> {
     private dep: Set<ReactiveEffect>
-    private _raw: T
+    public _raw: T
     private _value: T
     constructor(value: T) {
         this.dep = new Set()
@@ -30,4 +30,16 @@ function convert<T>(value: T) {
 
 export function ref<T>(raw: T) {
     return new RefImpl<T>(raw)
+}
+
+export function isRef(val: unknown): boolean {
+    return val instanceof RefImpl
+}
+
+export function unRef<T>(val: RefImpl<T> | T): T {
+    if (val instanceof RefImpl) {
+        return val._raw
+    } else {
+        return val
+    }
 }
