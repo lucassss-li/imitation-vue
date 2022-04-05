@@ -22,6 +22,18 @@ describe('effect', () => {
         arr[2] = 10
         expect(num).toBe(10)
     })
+
+    test('nested property', () => {
+        const observed = reactive({ a: 1, b: { foo: 1 } })
+        let foo
+        effect(() => {
+            foo = observed.b.foo
+        })
+        expect(foo).toBe(1)
+        observed.b.foo = 2
+        expect(foo).toBe(2)
+    })
+
     test('complex', () => {
         let a = 0
         effect(() => {
