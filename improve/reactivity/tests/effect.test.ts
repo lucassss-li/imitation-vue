@@ -44,4 +44,14 @@ describe('reactivity/effect', () => {
         counter.nested.num = 8
         expect(dummy).toBe(8)
     })
+    it('should observe delete operations', () => {
+        let dummy
+        const obj = reactive({ prop: 'value' })
+        effect(() => (dummy = obj.prop))
+
+        expect(dummy).toBe('value')
+        // @ts-ignore
+        delete obj.prop
+        expect(dummy).toBe(undefined)
+    })
 })
