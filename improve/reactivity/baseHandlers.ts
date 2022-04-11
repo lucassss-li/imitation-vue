@@ -1,4 +1,4 @@
-import { ReactiveFlags, reactiveMap } from './reactive'
+import { ReactiveFlags, reactiveMap, reactive } from './reactive'
 
 export const mutableHandlers: ProxyHandler<object> = {
     get(target, key, receiver) {
@@ -10,7 +10,7 @@ export const mutableHandlers: ProxyHandler<object> = {
         ) {
             return target
         }
-        return Reflect.get(target, key, receiver)
+        return reactive(Reflect.get(target, key, receiver))
     },
     set(target, key, value, receiver) {
         return Reflect.set(target, key, value, receiver)
