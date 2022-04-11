@@ -1,5 +1,10 @@
+import { ReactiveFlags } from './reactive'
+
 export const mutableHandlers: ProxyHandler<object> = {
     get(target, key, receiver) {
+        if (key === ReactiveFlags.IS_REACTIVE) {
+            return true
+        }
         return Reflect.get(target, key, receiver)
     },
     set(target, key, value, receiver) {
