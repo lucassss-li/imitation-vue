@@ -27,7 +27,10 @@ export function reactive(target: any) {
 function createReactiveObject(target: Target, baseHandlers: ProxyHandler<any>) {
     if (!isObject(target)) {
         console.warn(`value cannot be made reactive: ${String(target)}`)
-        return
+        return target
+    }
+    if (target[ReactiveFlags.RAW]) {
+        return target
     }
     let proxy = reactiveMap.get(target)
     if (!proxy) {

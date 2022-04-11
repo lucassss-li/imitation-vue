@@ -22,4 +22,10 @@ describe('reactivity/reactive', () => {
         reactive(<object>(<unknown>str))
         expect(warn).toBeCalledTimes(1)
     })
+    test('avoid reactive a already reactive object', () => {
+        const original = { foo: 1 }
+        const observed1 = reactive(original)
+        const observed2 = reactive(original)
+        expect(observed1).toBe(observed2)
+    })
 })
