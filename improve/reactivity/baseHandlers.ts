@@ -28,4 +28,9 @@ export const mutableHandlers: ProxyHandler<object> = {
         }
         return result
     },
+    has(target: object, key: string | symbol): boolean {
+        const result = Reflect.has(target, key)
+        track(target, key)
+        return result
+    },
 }
