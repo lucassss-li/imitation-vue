@@ -16,13 +16,20 @@ export interface Target {
     [ReactiveFlags.RAW]?: any
 }
 
+export const reactiveMap = new WeakMap<Target, any>()
+
 export function reactive<T extends object>(target: T): { [K in keyof T]: T[K] }
 export function reactive(target: any) {
     return createReactiveObject(target, mutableHandlers)
 }
 
-function createReactiveObject(target: any, baseHandlers: ProxyHandler<any>) {
-    return new Proxy(target, baseHandlers)
+function createReactiveObject(target: Target, baseHandlers: ProxyHandler<any>) {
+    let proxy = reactiveMap.get(target)
+    if (!proxy) {
+        proxy = new Proxy(target, baseHandlers)
+        reactiveMap.set(target, proxy)
+    }
+    return proxy
 }
 
 export function isReactive(value: unknown): boolean {
