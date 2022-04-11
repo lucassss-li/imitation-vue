@@ -16,6 +16,7 @@ export interface Target {
     [ReactiveFlags.RAW]?: any
 }
 
+export function reactive<T extends object>(target: T): { [K in keyof T]: T[K] }
 export function reactive(target: any) {
     return createReactiveObject(target, mutableHandlers)
 }
