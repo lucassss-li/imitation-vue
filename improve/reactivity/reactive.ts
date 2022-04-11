@@ -1,4 +1,5 @@
 import { mutableHandlers } from './baseHandlers'
+import { isObject } from '../shared/index'
 
 export const enum ReactiveFlags {
     SKIP = '__v_skip',
@@ -24,6 +25,10 @@ export function reactive(target: any) {
 }
 
 function createReactiveObject(target: Target, baseHandlers: ProxyHandler<any>) {
+    if (!isObject(target)) {
+        console.warn(`value cannot be made reactive: ${String(target)}`)
+        return
+    }
     let proxy = reactiveMap.get(target)
     if (!proxy) {
         proxy = new Proxy(target, baseHandlers)

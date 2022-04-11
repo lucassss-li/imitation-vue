@@ -13,4 +13,13 @@ describe('reactivity/reactive', () => {
         // ownKeys
         expect(Object.keys(observed)).toEqual(['foo'])
     })
+    test('target is not object', () => {
+        const str = 'hello world'
+        const warn = jest.fn()
+        console.warn = warn
+        expect(warn).not.toHaveBeenCalled()
+        // eslint-disable-next-line
+        reactive(<object>(<unknown>str))
+        expect(warn).toBeCalledTimes(1)
+    })
 })
