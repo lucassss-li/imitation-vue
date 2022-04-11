@@ -66,4 +66,85 @@ describe('reactivity/effect', () => {
         obj.prop = 12
         expect(dummy).toBe(true)
     })
+    it('should observe properties on the prototype chain', () => {
+        let dummy
+        const counter = reactive({ num: 0 })
+        const parentCounter = reactive({ num: 2 })
+        Object.setPrototypeOf(counter, parentCounter)
+        effect(() => (dummy = counter.num))
+
+        expect(dummy).toBe(0)
+        // @ts-ignore
+        delete counter.num
+        expect(dummy).toBe(2)
+        parentCounter.num = 4
+        expect(dummy).toBe(4)
+        counter.num = 3
+        expect(dummy).toBe(3)
+    })
+    it('should observe has operations on the prototype chain', () => {
+        let dummy
+        const counter = reactive({ num: 0 })
+        const parentCounter = reactive({ num: 2 })
+        Object.setPrototypeOf(counter, parentCounter)
+        effect(() => (dummy = 'num' in counter))
+
+        expect(dummy).toBe(true)
+        // @ts-ignore
+        delete counter.num
+        expect(dummy).toBe(true)
+        // @ts-ignore
+        delete parentCounter.num
+        expect(dummy).toBe(false)
+        counter.num = 3
+        expect(dummy).toBe(true)
+    })
+    it('should observe inherited property', () => {
+        let dummy, parentDummy
+        const obj = reactive<{ prop?: number }>({})
+        const parent = reactive<{ prop?: number }>({})
+        Object.setPrototypeOf(obj, parent)
+        effect(() => (dummy = obj.prop))
+        effect(() => (parentDummy = parent.prop))
+        expect(dummy).toBe(undefined)
+        expect(parentDummy).toBe(undefined)
+        obj.prop = 2
+        expect(dummy).toBe(2)
+        expect(parentDummy).toBe(undefined)
+        delete obj.prop
+        parent.prop = 4
+        const a = obj.prop
+        console.log(a)
+
+        expect(dummy).toBe(4)
+        expect(parentDummy).toBe(4)
+        obj.prop = 2
+        expect(dummy).toBe(2)
+        expect(parentDummy).toBe(4)
+    })
+    it('should observe inherited property accessors', () => {
+        let dummy, parentDummy, hiddenValue: any
+        const obj = reactive<{ prop?: number }>({})
+        const parent = reactive({
+            set prop(value) {
+                hiddenValue = value
+            },
+            get prop() {
+                return hiddenValue
+            },
+        })
+        Object.setPrototypeOf(obj, parent)
+        effect(() => (dummy = obj.prop))
+        effect(() => (parentDummy = parent.prop))
+
+        expect(dummy).toBe(undefined)
+        expect(parentDummy).toBe(undefined)
+        obj.prop = 4
+        expect(dummy).toBe(4)
+        // this doesn't work, should it?
+        expect(parentDummy).toBe(4)
+        parent.prop = 2
+        expect(dummy).toBe(2)
+        expect(parentDummy).toBe(2)
+    })
 })
