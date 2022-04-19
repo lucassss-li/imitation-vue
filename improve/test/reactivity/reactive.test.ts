@@ -1,4 +1,4 @@
-import { reactive, isReactive } from '../../reactivity/reactive'
+import { reactive, isReactive, toRaw } from '../../reactivity/reactive'
 
 describe('reactivity/reactive', () => {
     test('reactive Object', () => {
@@ -35,5 +35,44 @@ describe('reactivity/reactive', () => {
         expect(isReactive(observed.nested)).toBe(true)
         expect(isReactive(observed.array)).toBe(true)
         expect(isReactive(observed.array[0])).toBe(true)
+    })
+    test('toRaw', () => {
+        const original = { foo: 1 }
+        const observed = reactive(original)
+        expect(toRaw(observed)).toBe(original)
+    })
+    test('observing IterableCollections(Map, Set)', () => {
+        const map = reactive(new Map())
+
+        expect(map instanceof Map).toBe(true)
+        expect(isReactive(map)).toBe(true)
+
+        map.set('key', {})
+        expect(isReactive(map.get('key'))).toBe(true)
+
+        const set = reactive(new Set())
+
+        expect(set instanceof Set).toBe(true)
+        expect(isReactive(set)).toBe(true)
+
+        set.add({})
+    })
+    test('observing subtypes of IterableCollections(Map, Set)', () => {
+        // subtypes of Map
+        class CustomMap extends Map {}
+        const cmap = reactive(new CustomMap())
+
+        expect(cmap instanceof Map).toBe(true)
+        expect(isReactive(cmap)).toBe(true)
+
+        cmap.set('key', {})
+        expect(isReactive(cmap.get('key'))).toBe(true)
+
+        // subtypes of Set
+        class CustomSet extends Set {}
+        const cset = reactive(new CustomSet())
+
+        expect(cset instanceof Set).toBe(true)
+        expect(isReactive(cset)).toBe(true)
     })
 })
