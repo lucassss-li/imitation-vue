@@ -1,4 +1,4 @@
-import { isObject, toRawType } from '../shared'
+import { def, isObject, toRawType } from '../shared'
 import { mutableHandlers } from './baseHandlers'
 import { mutableCollectionHandlers } from './collectionHandlers'
 
@@ -53,6 +53,9 @@ export function reactive(target: Target) {
         console.warn('target is not a object')
         return target
     }
+    if (isReactive(target)) {
+        return target
+    }
     const targetType = getTargetType(target)
     if (targetType === TargetType.INVALID) {
         return target
@@ -78,4 +81,9 @@ export const isReactive = (val: unknown) => {
 export function toRaw<T>(observed: T): T {
     const raw = observed && (observed as Target)[ReactiveFlags.RAW]
     return raw ? toRaw(raw) : observed
+}
+
+export function markRaw<T extends object>(value: T): T {
+    def(value, ReactiveFlags.SKIP, true)
+    return value
 }
