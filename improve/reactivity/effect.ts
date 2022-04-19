@@ -1,3 +1,6 @@
+import { isArray } from '../shared'
+import { TriggerOpTypes } from './operations'
+
 type KeyToDepMap = Map<any, Set<ReactiveEffect>>
 const targetMap = new WeakMap<any, KeyToDepMap>()
 
@@ -30,12 +33,23 @@ export function track(target, key) {
     }
 }
 
-export function trigger(target: object, key?: unknown) {
+export function trigger(target: object, type: TriggerOpTypes, key?: unknown) {
     const depsMap = targetMap.get(target)
     if (!depsMap) return
-    const deps = depsMap.get(key)
-    if (!deps) return
-    for (const effect of [...deps.values()]) {
+    const deps: ReactiveEffect[] = []
+    const set = depsMap.get(key)
+    if (set) {
+        deps.push(...set.values())
+    }
+    if (type === TriggerOpTypes.ADD) {
+        if (isArray(target)) {
+            const length_dep = depsMap.get('length')
+            if (length_dep) {
+                deps.push(...length_dep.values())
+            }
+        }
+    }
+    for (const effect of deps) {
         effect.run()
     }
 }
