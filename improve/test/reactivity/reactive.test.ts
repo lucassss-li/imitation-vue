@@ -75,4 +75,23 @@ describe('reactivity/reactive', () => {
         expect(cset instanceof Set).toBe(true)
         expect(isReactive(cset)).toBe(true)
     })
+    test('observing subtypes of WeakCollections(WeakMap, WeakSet)', () => {
+        // subtypes of WeakMap
+        class CustomMap extends WeakMap {}
+        const cmap = reactive(new CustomMap())
+
+        expect(cmap instanceof WeakMap).toBe(true)
+        expect(isReactive(cmap)).toBe(true)
+
+        const key = {}
+        cmap.set(key, {})
+        expect(isReactive(cmap.get(key))).toBe(true)
+
+        // subtypes of WeakSet
+        class CustomSet extends WeakSet {}
+        const cset = reactive(new CustomSet())
+
+        expect(cset instanceof WeakSet).toBe(true)
+        expect(isReactive(cset)).toBe(true)
+    })
 })
