@@ -1,4 +1,4 @@
-import { reactive } from '../../reactivity/reactive'
+import { reactive, isReactive } from '../../reactivity/reactive'
 
 describe('reactivity/reactive', () => {
     test('reactive Object', () => {
@@ -17,5 +17,11 @@ describe('reactivity/reactive', () => {
         //@ts-ignore
         reactive(original)
         expect(fn).toHaveBeenCalledTimes(1)
+    })
+    test('isReactive', () => {
+        const original = { foo: 1 }
+        const observed = reactive(original)
+        expect(isReactive(original)).toBe(false)
+        expect(isReactive(observed)).toBe(true)
     })
 })

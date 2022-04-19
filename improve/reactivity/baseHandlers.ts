@@ -1,5 +1,10 @@
+import { ReactiveFlags } from './reactive'
+
 export const mutableHandlers = {
     get(target, key, receiver) {
+        if (key === ReactiveFlags.IS_REACTIVE) {
+            return true
+        }
         const res = Reflect.get(target, key, receiver)
         return res
     },
