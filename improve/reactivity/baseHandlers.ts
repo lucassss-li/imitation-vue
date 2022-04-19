@@ -1,4 +1,5 @@
 import { hasOwn, isArray, isIntegerKey, isObject } from '../shared'
+import { track, trigger } from './effect'
 import { reactive, ReactiveFlags, reactiveMap, toRaw } from './reactive'
 
 export const mutableHandlers = {
@@ -12,7 +13,7 @@ export const mutableHandlers = {
             return target
         }
         const res = Reflect.get(target, key, receiver)
-        // TODO:track
+        track(target, key)
         return isObject(res) ? reactive(res) : res
     },
     set(target, key, value, receiver) {
@@ -24,8 +25,10 @@ export const mutableHandlers = {
         const res = Reflect.set(target, key, rawValue, receiver)
         if (hadKey) {
             // TODO:trigger change
+            trigger(target, key)
         } else {
             // TODO:trigger add
+            trigger(target, key)
         }
         return res
     },
@@ -34,12 +37,13 @@ export const mutableHandlers = {
         const result = Reflect.deleteProperty(target, key)
         if (result && hadKey) {
             // TODO:trigger delete
+            trigger(target, key)
         }
         return result
     },
     has(target: object, key: string | symbol): boolean {
         const result = Reflect.has(target, key)
-        // TODO:trigger has
+        track(target, key)
         return result
     },
 }
