@@ -1,4 +1,5 @@
-import { ReactiveFlags } from './reactive'
+import { isObject } from '../shared'
+import { reactive, ReactiveFlags } from './reactive'
 
 export const mutableHandlers = {
     get(target, key, receiver) {
@@ -6,7 +7,7 @@ export const mutableHandlers = {
             return true
         }
         const res = Reflect.get(target, key, receiver)
-        return res
+        return isObject(res) ? reactive(res) : res
     },
     set(target, key, value, receiver) {
         const res = Reflect.set(target, key, value, receiver)
