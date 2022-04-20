@@ -1,5 +1,5 @@
 import { effect } from '../../reactivity/effect'
-import { reactive } from '../../reactivity/reactive'
+import { reactive, isReactive } from '../../reactivity/reactive'
 
 describe('reactivity/effect', () => {
     test('should run the passed function once (wrapped by a effect)', () => {
@@ -199,5 +199,34 @@ describe('reactivity/effect', () => {
         })
         counter.num1 = counter.num2 = 7
         expect(dummy).toBe(21)
+    })
+    it('map', () => {
+        const _map = new Map()
+        const map = reactive(_map)
+        expect(isReactive(map)).toBe(true)
+        map.set('key', {})
+        expect(isReactive(map.get('key'))).toBe(true)
+        map.set('num', 1)
+        let dummy
+        effect(() => {
+            dummy = map.get('num')
+        })
+        expect(dummy).toBe(1)
+        map.set('num', 2)
+        expect(dummy).toBe(2)
+    })
+    it('set', () => {
+        const _set = new Set()
+        const set = reactive(_set)
+        expect(isReactive(set)).toBe(true)
+        set.add(1)
+        expect(set.has(1)).toBe(true)
+        let flag
+        effect(() => {
+            flag = set.has(1)
+        })
+        expect(flag).toBe(true)
+        set.delete(1)
+        expect(flag).toBe(false)
     })
 })

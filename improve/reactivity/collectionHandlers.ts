@@ -1,4 +1,6 @@
 import { hasOwn, isObject } from '../shared'
+import { track, trigger } from './effect'
+import { TriggerOpTypes } from './operations'
 import { reactive, ReactiveFlags, toRaw } from './reactive'
 
 export type CollectionTypes = IterableCollections | WeakCollections
@@ -14,19 +16,45 @@ const mutableInstrumentations = {
         const rawTarget = toRaw(target)
         const rawKey = toRaw(key)
         const res = rawTarget.get(rawKey)
+        track(rawTarget, rawKey)
         return isObject(res) ? reactive(res) : res
     },
     set(this: MapTypes, key: unknown, value: unknown) {
         const target = (this as any)[ReactiveFlags.RAW]
         const rawTarget = toRaw(target)
         const rawKey = toRaw(key)
-        rawTarget.set(rawKey, value)
+        const rawValue = toRaw(value)
+        const res = rawTarget.set(rawKey, rawValue)
+        if (rawTarget.has(rawKey)) {
+            trigger(rawTarget, TriggerOpTypes.SET, rawKey)
+        } else {
+            trigger(rawTarget, TriggerOpTypes.ADD, rawKey)
+        }
+        return res
     },
     add(this: SetTypes, value: unknown) {
         const target = (this as any)[ReactiveFlags.RAW]
         const rawTarget = toRaw(target)
         const rawValue = toRaw(value)
-        rawTarget.add(rawValue)
+        const res = rawTarget.add(rawValue)
+        trigger(rawTarget, TriggerOpTypes.ADD, rawValue)
+        return res
+    },
+    delete(this: IterableCollections, key: unknown) {
+        const target = (this as any)[ReactiveFlags.RAW]
+        const rawTarget = toRaw(target)
+        const rawKey = toRaw(key)
+        const res = rawTarget.delete(rawKey)
+        trigger(rawTarget, TriggerOpTypes.DELETE, rawKey)
+        return res
+    },
+    has(this: SetTypes, value: unknown) {
+        const target = (this as any)[ReactiveFlags.RAW]
+        const rawTarget = toRaw(target)
+        const rawValue = toRaw(value)
+        const res = rawTarget.has(rawValue)
+        track(rawTarget, rawValue)
+        return res
     },
 }
 
