@@ -189,4 +189,15 @@ describe('reactivity/effect', () => {
         delete numbers.num1
         expect(dummy).toBe(4)
     })
+    it('scheduler', () => {
+        let dummy
+        const counter = reactive({ num1: 0, num2: 0 })
+        effect(() => counter.num1 + counter.num2, {
+            scheduler: () => {
+                dummy = counter.num1 + counter.num1 + counter.num2
+            },
+        })
+        counter.num1 = counter.num2 = 7
+        expect(dummy).toBe(21)
+    })
 })

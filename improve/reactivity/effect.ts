@@ -3,7 +3,7 @@ import { TriggerOpTypes } from './operations'
 
 export const ITERATE_KEY = Symbol('iterate')
 
-type KeyToDepMap = Map<any, Set<ReactiveEffect>>
+type KeyToDepMap = Map<any, Set<ReactiveEffect & EffectOptions>>
 const targetMap = new WeakMap<any, KeyToDepMap>()
 
 let activeEffect
@@ -11,13 +11,25 @@ class ReactiveEffect {
     deps: Set<ReactiveEffect>[] = []
     constructor(private fn) {}
     run() {
+        for (const dep of this.deps.values()) {
+            dep.delete(this)
+        }
         activeEffect = this
-        return this.fn()
+        const res = this.fn()
         activeEffect = null
+        return res
     }
 }
-export function effect<T extends () => any>(fn: T) {
+
+type EffectOptions = {
+    scheduler?: () => any
+}
+export function effect<T extends () => any>(
+    fn: T,
+    options: EffectOptions = {},
+) {
     const effect = new ReactiveEffect(fn)
+    Object.assign(effect, options)
     effect.run()
 }
 
@@ -38,7 +50,7 @@ export function track(target, key) {
 export function trigger(target: object, type: TriggerOpTypes, key?: unknown) {
     const depsMap = targetMap.get(target)
     if (!depsMap) return
-    const deps: ReactiveEffect[] = []
+    const deps: Array<ReactiveEffect & EffectOptions> = []
     const set = depsMap.get(key)
     if (set) {
         deps.push(...set.values())
@@ -55,6 +67,10 @@ export function trigger(target: object, type: TriggerOpTypes, key?: unknown) {
         }
     }
     for (const effect of deps) {
-        effect.run()
+        if (effect.scheduler) {
+            effect.scheduler()
+        } else {
+            effect.run()
+        }
     }
 }
