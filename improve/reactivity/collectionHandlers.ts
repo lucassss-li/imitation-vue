@@ -1,5 +1,5 @@
 import { hasOwn, isObject } from '../shared'
-import { track, trigger } from './effect'
+import { ITERATE_KEY, track, trigger } from './effect'
 import { TriggerOpTypes } from './operations'
 import { reactive, ReactiveFlags, toRaw } from './reactive'
 
@@ -55,6 +55,26 @@ const mutableInstrumentations = {
         const res = rawTarget.has(rawValue)
         track(rawTarget, rawValue)
         return res
+    },
+    values(this: MapTypes) {
+        const target = (this as any)[ReactiveFlags.RAW]
+        const rawTarget = toRaw(target)
+        const innerIterator = rawTarget.values()
+        track(rawTarget, ITERATE_KEY)
+        return {
+            next() {
+                const { value, done } = innerIterator.next()
+                return done
+                    ? { value, done }
+                    : {
+                          value: reactive(value),
+                          done,
+                      }
+            },
+            [Symbol.iterator]() {
+                return this
+            },
+        }
     },
 }
 

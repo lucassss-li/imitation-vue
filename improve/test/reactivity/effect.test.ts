@@ -229,4 +229,59 @@ describe('reactivity/effect', () => {
         set.delete(1)
         expect(flag).toBe(false)
     })
+    it('array iteration', () => {
+        const arr = reactive([1, 2, 3, 4])
+        let dummy1
+        let dummy2
+        let dummy3
+        let dummy4
+        effect(() => {
+            dummy1 = arr.reduce((total, n) => {
+                return total + n
+            }, 0)
+        })
+        effect(() => {
+            dummy2 = 0
+            for (const i in arr) {
+                dummy2 += arr[i]
+            }
+        })
+        effect(() => {
+            dummy3 = 0
+            for (const i of arr) {
+                dummy3 += i
+            }
+        })
+        effect(() => {
+            dummy4 = 0
+            for (const i of arr.values()) {
+                dummy4 += i
+            }
+        })
+        expect(dummy1).toBe(10)
+        expect(dummy2).toBe(10)
+        expect(dummy3).toBe(10)
+        expect(dummy4).toBe(10)
+        arr[0] = 11
+        expect(dummy1).toBe(20)
+        expect(dummy2).toBe(20)
+        expect(dummy3).toBe(20)
+        expect(dummy4).toBe(20)
+    })
+    it('map iteration', () => {
+        const map = reactive(new Map())
+        map.set('a', 1)
+        map.set('b', 2)
+        map.set('c', 3)
+        let dummy
+        effect(() => {
+            dummy = 0
+            for (const n of map.values()) {
+                dummy += n
+            }
+        })
+        expect(dummy).toBe(6)
+        map.delete('c')
+        expect(dummy).toBe(3)
+    })
 })
