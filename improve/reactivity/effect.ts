@@ -1,6 +1,8 @@
 import { isArray } from '../shared'
 import { TriggerOpTypes } from './operations'
 
+export const ITERATE_KEY = Symbol('iterate')
+
 type KeyToDepMap = Map<any, Set<ReactiveEffect>>
 const targetMap = new WeakMap<any, KeyToDepMap>()
 
@@ -41,12 +43,15 @@ export function trigger(target: object, type: TriggerOpTypes, key?: unknown) {
     if (set) {
         deps.push(...set.values())
     }
-    if (type === TriggerOpTypes.ADD) {
-        if (isArray(target)) {
-            const length_dep = depsMap.get('length')
-            if (length_dep) {
-                deps.push(...length_dep.values())
-            }
+    if (isArray(target)) {
+        const length_dep = depsMap.get('length')
+        if (length_dep) {
+            deps.push(...length_dep.values())
+        }
+    } else {
+        const length_dep = depsMap.get(ITERATE_KEY)
+        if (length_dep) {
+            deps.push(...length_dep.values())
         }
     }
     for (const effect of deps) {

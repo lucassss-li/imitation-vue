@@ -1,5 +1,5 @@
 import { hasOwn, isArray, isIntegerKey, isObject } from '../shared'
-import { track, trigger } from './effect'
+import { ITERATE_KEY, track, trigger } from './effect'
 import { reactive, ReactiveFlags, reactiveMap, toRaw } from './reactive'
 import { TriggerOpTypes } from './operations'
 
@@ -43,5 +43,13 @@ export const mutableHandlers = {
         const result = Reflect.has(target, key)
         track(target, key)
         return result
+    },
+    ownKeys(target: object) {
+        if (isArray(target)) {
+            track(target, 'length')
+        } else {
+            track(target, ITERATE_KEY)
+        }
+        return Reflect.ownKeys(target)
     },
 }
