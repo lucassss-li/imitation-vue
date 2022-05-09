@@ -1,6 +1,8 @@
 import { h } from '../../dist/vue-esm.js'
+window.self = null
 export default {
     render() {
+        window.self = this
         return h(
             'div',
             {
@@ -9,7 +11,7 @@ export default {
             },
             [
                 h('div', {}, 'hello'),
-                h('div', { style: { color: 'green' } }, 'world'),
+                h('div', { style: { color: 'green' } }, this.msg),
             ],
         )
     },

@@ -20,7 +20,7 @@ function processElement(vNode, container) {
 
 function mountElement(vNode, container) {
     const { type, props, children } = vNode
-    const element = document.createElement(type)
+    const element = (vNode.el = document.createElement(type))
     props && processAttribute(props, element)
     children && mountChildren(children, element)
     container.append(element)
@@ -55,9 +55,11 @@ function processComponent(vNode, container) {
 function mountComponent(vNode, container) {
     const instance = createComponentInstance(vNode)
     setupComponent(instance)
-    setupRenderEffect(instance, container)
+    setupRenderEffect(instance, container, vNode)
 }
-function setupRenderEffect(instance, container) {
-    const subTree = instance.render()
+function setupRenderEffect(instance, container, vNode) {
+    const { proxy } = instance
+    const subTree = instance.render.call(proxy)
     patch(subTree, container)
+    vNode.el = subTree.el
 }
