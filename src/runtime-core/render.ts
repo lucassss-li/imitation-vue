@@ -28,6 +28,16 @@ function mountElement(vNode, container) {
 
 function processAttribute(props, element) {
     //TODO:处理属性
+    for (const key in props) {
+        if (key === 'class') {
+            element.classList.add(...props[key])
+        }
+        if (key === 'style') {
+            for (const field in props[key]) {
+                element.style.setProperty(field, props[key][field])
+            }
+        }
+    }
 }
 
 function mountChildren(children, container) {
