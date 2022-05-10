@@ -1,4 +1,5 @@
 import { h } from '../../dist/vue-esm.js'
+import MyComponent from './MyComponent.js'
 window.self = null
 export default {
     render() {
@@ -18,6 +19,7 @@ export default {
             [
                 h('div', {}, 'hello'),
                 h('div', { style: { color: 'green' } }, this.msg),
+                h(MyComponent, { count: 1 }),
             ],
         )
     },

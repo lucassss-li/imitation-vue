@@ -1,3 +1,4 @@
+import { initProps } from './componentProps'
 import { publicInstanceProxyHandlers } from './componentPublicInstance'
 
 export function createComponentInstance(vNode) {
@@ -5,12 +6,13 @@ export function createComponentInstance(vNode) {
         vNode,
         type: vNode.type,
         setupState: {},
+        props: {},
     }
     return component
 }
 
 export function setupComponent(instance) {
-    //TODO:initProps()
+    initProps(instance, instance.vNode.props)
     //TODO:initSlots()
     setupStatefulComponent(instance)
 }
@@ -19,7 +21,7 @@ function setupStatefulComponent(instance: any) {
     instance.proxy = new Proxy({ _: instance }, publicInstanceProxyHandlers)
     const { setup } = component
     if (setup) {
-        const setupResult = setup()
+        const setupResult = setup(instance.props)
         handleSetupResult(instance, setupResult)
     }
 }
