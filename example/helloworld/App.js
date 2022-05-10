@@ -12,14 +12,16 @@ export default {
                 onClick() {
                     console.log('click')
                 },
-                onMousemove() {
-                    console.log('mouse')
-                },
             },
             [
                 h('div', {}, 'hello'),
                 h('div', { style: { color: 'green' } }, this.msg),
-                h(MyComponent, { count: 1 }),
+                h(MyComponent, {
+                    count: 1,
+                    onAdd(a,b) {
+                        console.log(a,b)
+                    },
+                }),
             ],
         )
     },

@@ -1,3 +1,4 @@
+import { emit } from './componentEmit'
 import { initProps } from './componentProps'
 import { publicInstanceProxyHandlers } from './componentPublicInstance'
 
@@ -7,7 +8,10 @@ export function createComponentInstance(vNode) {
         type: vNode.type,
         setupState: {},
         props: {},
+        // eslint-disable-next-line
+        emit: event => {},
     }
+    component.emit = emit.bind(null, component)
     return component
 }
 
@@ -21,7 +25,7 @@ function setupStatefulComponent(instance: any) {
     instance.proxy = new Proxy({ _: instance }, publicInstanceProxyHandlers)
     const { setup } = component
     if (setup) {
-        const setupResult = setup(instance.props)
+        const setupResult = setup(instance.props, { emit: instance.emit })
         handleSetupResult(instance, setupResult)
     }
 }

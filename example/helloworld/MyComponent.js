@@ -2,10 +2,18 @@ import { h } from '../../dist/vue-esm.js'
 
 export default {
     render() {
-        return h('div', {}, `component${this.count}`)
+        return h(
+            'div',
+            {
+                onClick: this.emitAdd,
+            },
+            `component${this.count}`,
+        )
     },
-    setup(props) {
-        console.log(props)
-        return {}
+    setup(props, { emit }) {
+        const emitAdd = () => {
+            emit('add',1,'a')
+        }
+        return { emitAdd }
     },
 }
