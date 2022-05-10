@@ -35,6 +35,10 @@ function processAttribute(props, element) {
                 element.style.setProperty(field, props[key][field])
             }
         }
+        if (/^on[A-Z]/.test(key)) {
+            const event = key.slice(2).toLowerCase()
+            element.addEventListener(event, props[key])
+        }
     }
 }
 

@@ -8,6 +8,12 @@ export default {
             {
                 style: { color: 'red' },
                 class: ['container'],
+                onClick() {
+                    console.log('click')
+                },
+                onMousemove() {
+                    console.log('mouse')
+                },
             },
             [
                 h('div', {}, 'hello'),
