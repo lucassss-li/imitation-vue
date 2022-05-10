@@ -1,3 +1,4 @@
+import { ShapeFlags } from '../shared/ShapeFlag'
 import { createComponentInstance, setupComponent } from './component'
 
 export function render(vNode, container) {
@@ -5,9 +6,7 @@ export function render(vNode, container) {
 }
 
 function patch(vNode, container) {
-    if (typeof vNode === 'string') {
-        container.append(vNode)
-    } else if (typeof vNode.type === 'string') {
+    if (vNode.shapeFlag & ShapeFlags.ELEMENT) {
         processElement(vNode, container)
     } else {
         processComponent(vNode, container)
@@ -19,15 +18,14 @@ function processElement(vNode, container) {
 }
 
 function mountElement(vNode, container) {
-    const { type, props, children } = vNode
+    const { type, props } = vNode
     const element = (vNode.el = document.createElement(type))
     props && processAttribute(props, element)
-    children && mountChildren(children, element)
+    mountChildren(vNode, element)
     container.append(element)
 }
 
 function processAttribute(props, element) {
-    //TODO:处理属性
     for (const key in props) {
         if (key === 'class') {
             element.classList.add(...props[key])
@@ -40,12 +38,20 @@ function processAttribute(props, element) {
     }
 }
 
-function mountChildren(children, container) {
-    if (Array.isArray(children)) {
-        children.forEach(child => patch(child, container))
-    } else {
-        patch(children, container)
+function mountChildren(vNode, container) {
+    const children: any[] = []
+    if (vNode.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+        children.push(vNode.children)
+    } else if (vNode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        children.push(...vNode.children)
     }
+    children.forEach(child => {
+        if (typeof child === 'string') {
+            container.append(child)
+        } else {
+            patch(child, container)
+        }
+    })
 }
 
 function processComponent(vNode, container) {
