@@ -16,12 +16,19 @@ export default {
             [
                 h('div', {}, 'hello'),
                 h('div', { style: { color: 'green' } }, this.msg),
-                h(MyComponent, {
-                    count: 1,
-                    onAdd(a,b) {
-                        console.log(a,b)
+                h(
+                    MyComponent,
+                    {
+                        count: 1,
+                        onAdd(a, b) {
+                            console.log(a, b)
+                        },
                     },
-                }),
+                    {
+                        header: h('h1', {}, 'slot1'),
+                        footer: h('h1', {}, 'slot2'),
+                    },
+                ),
             ],
         )
     },

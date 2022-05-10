@@ -1,4 +1,4 @@
-import { h } from '../../dist/vue-esm.js'
+import { h, renderSlots } from '../../dist/vue-esm.js'
 
 export default {
     render() {
@@ -7,12 +7,16 @@ export default {
             {
                 onClick: this.emitAdd,
             },
-            `component${this.count}`,
+            [
+                renderSlots(this.$slots, 'header'),
+                `component${this.count}`,
+                renderSlots(this.$slots, 'footer'),
+            ],
         )
     },
     setup(props, { emit }) {
         const emitAdd = () => {
-            emit('add',1,'a')
+            emit('add', 1, 'a')
         }
         return { emitAdd }
     },
