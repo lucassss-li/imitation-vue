@@ -1,4 +1,4 @@
-import { isArray } from '../shared'
+import { isArray } from '../shared/index'
 import { TriggerOpTypes } from './operations'
 
 export const ITERATE_KEY = Symbol('iterate')

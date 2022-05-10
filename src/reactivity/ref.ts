@@ -1,4 +1,4 @@
-import { hasChanged, isObject } from '../shared'
+import { hasChanged, isObject } from '../shared/index'
 import { ReactiveEffect, trackEffect, triggerEffects } from './effect'
 import { reactive } from './reactive'
 

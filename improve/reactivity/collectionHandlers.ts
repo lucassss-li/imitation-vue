@@ -1,4 +1,4 @@
-import { hasOwn, isObject } from '../shared'
+import { hasOwn, isObject } from '../shared/index'
 import { ITERATE_KEY, track, trigger } from './effect'
 import { TriggerOpTypes } from './operations'
 import { reactive, ReactiveFlags, toRaw } from './reactive'

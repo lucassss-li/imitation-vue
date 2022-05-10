@@ -1,4 +1,4 @@
-import { def, isObject, toRawType } from '../shared'
+import { def, isObject, toRawType } from '../shared/index'
 import { mutableHandlers } from './baseHandlers'
 import { mutableCollectionHandlers } from './collectionHandlers'
 

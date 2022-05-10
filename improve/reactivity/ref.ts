@@ -1,4 +1,4 @@
-import { isObject } from '../shared'
+import { isObject } from '../shared/index'
 import { track, trigger } from './effect'
 import { TriggerOpTypes } from './operations'
 import { reactive, toRaw } from './reactive'
