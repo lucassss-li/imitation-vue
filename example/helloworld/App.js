@@ -29,6 +29,7 @@ export default {
                         footer: h('h1', {}, 'slot2'),
                     },
                 ),
+                'text'
             ],
         )
     },

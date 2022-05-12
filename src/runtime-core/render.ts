@@ -1,16 +1,30 @@
 import { ShapeFlags } from '../shared/ShapeFlag'
 import { createComponentInstance, setupComponent } from './component'
+import { Fragment } from './VNode'
 
 export function render(vNode, container) {
     patch(vNode, container)
 }
 
 function patch(vNode, container) {
-    if (vNode.shapeFlag & ShapeFlags.ELEMENT) {
-        processElement(vNode, container)
-    } else {
-        processComponent(vNode, container)
+    const { type, shapeFlag } = vNode
+    switch (type) {
+        case Fragment: {
+            processFragment(vNode, container)
+            break
+        }
+        default: {
+            if (shapeFlag & ShapeFlags.ELEMENT) {
+                processElement(vNode, container)
+            } else {
+                processComponent(vNode, container)
+            }
+        }
     }
+}
+
+function processFragment(vNode, container) {
+    mountChildren(vNode, container)
 }
 
 function processElement(vNode, container) {
