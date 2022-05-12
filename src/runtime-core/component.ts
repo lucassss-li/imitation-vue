@@ -3,7 +3,8 @@ import { initProps } from './componentProps'
 import { publicInstanceProxyHandlers } from './componentPublicInstance'
 import { initSlots } from './componentSlots'
 
-export function createComponentInstance(vNode) {
+export function createComponentInstance(vNode, parentComponent) {
+    console.log(parentComponent)
     const component = {
         vNode,
         type: vNode.type,
@@ -12,6 +13,10 @@ export function createComponentInstance(vNode) {
         // eslint-disable-next-line
         emit: event => {},
         slots: {},
+        provides: parentComponent
+            ? Object.create(parentComponent.provides)
+            : {},
+        parent: parentComponent,
     }
     component.emit = emit.bind(null, component)
     return component
