@@ -27,7 +27,9 @@ function setupStatefulComponent(instance: any) {
     instance.proxy = new Proxy({ _: instance }, publicInstanceProxyHandlers)
     const { setup } = component
     if (setup) {
+        setCurrentInstance(instance)
         const setupResult = setup(instance.props, { emit: instance.emit })
+        setCurrentInstance(null)
         handleSetupResult(instance, setupResult)
     }
 }
@@ -44,4 +46,12 @@ function finishComponentSetup(instance: any) {
     if (component.render) {
         instance.render = component.render
     }
+}
+
+let currentInstance
+export function getCurrentInstance() {
+    return currentInstance
+}
+function setCurrentInstance(instance) {
+    currentInstance = instance
 }
