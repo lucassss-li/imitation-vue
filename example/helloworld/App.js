@@ -1,4 +1,4 @@
-import { h } from '../../dist/vue-esm.js'
+import { h, createTextVNode } from '../../dist/vue-esm.js'
 import MyComponent from './MyComponent.js'
 window.self = null
 export default {
@@ -29,7 +29,8 @@ export default {
                         footer: h('h1', {}, 'slot2'),
                     },
                 ),
-                'text'
+                'text',
+                createTextVNode('aaaaa'),
             ],
         )
     },
