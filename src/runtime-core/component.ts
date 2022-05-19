@@ -18,6 +18,8 @@ export function createComponentInstance(vNode, parentComponent) {
             ? Object.create(parentComponent.provides)
             : {},
         parent: parentComponent,
+        mounted: false,
+        subTree: null,
     }
     component.emit = emit.bind(null, component)
     return component
