@@ -1,3 +1,4 @@
+import { proxyRef } from '../reactivity/index'
 import { emit } from './componentEmit'
 import { initProps } from './componentProps'
 import { publicInstanceProxyHandlers } from './componentPublicInstance'
@@ -40,7 +41,7 @@ function setupStatefulComponent(instance: any) {
 }
 function handleSetupResult(instance, setupResult: any) {
     if (typeof setupResult === 'object') {
-        instance.setupState = setupResult
+        instance.setupState = proxyRef(setupResult)
     } else {
         // TODO:function
     }

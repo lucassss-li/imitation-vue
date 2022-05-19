@@ -48,14 +48,14 @@ export function proxyRef<T extends object>(
     val: T,
 ): { [K in keyof T]: T[K] | unknown } {
     return new Proxy(val, {
-        get(target, key) {
-            return unRef(Reflect.get(target, key))
+        get(target, key, receiver) {
+            return unRef(Reflect.get(target, key, receiver))
         },
-        set(target, key, value) {
-            if (isRef(Reflect.get(target, key)) && !isRef(value)) {
-                return (Reflect.get(target, key).value = value)
+        set(target, key, value, receiver) {
+            if (isRef(Reflect.get(target, key, receiver)) && !isRef(value)) {
+                return (Reflect.get(target, key, receiver).value = value)
             } else {
-                return Reflect.set(target, key, value)
+                return Reflect.set(target, key, value, receiver)
             }
         },
     })

@@ -16,4 +16,12 @@ export const publicInstanceProxyHandlers = {
             return publicGetter(instance)
         }
     },
+    set({ _: instance }, key, value) {
+        const { setupState, props } = instance
+        if (key in setupState) {
+            return (setupState[key] = value)
+        } else if (key in props) {
+            return (props[key] = value)
+        }
+    },
 }

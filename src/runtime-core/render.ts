@@ -74,7 +74,7 @@ function mountChildren(vNode, container, parentComponent) {
         children.push(...vNode.children)
     }
     children.forEach(child => {
-        if (!child.shapeFlag) {
+        if (typeof child !== 'object') {
             child = createTextVNode(child)
         }
         patch(child, container, parentComponent)
