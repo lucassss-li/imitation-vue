@@ -42,15 +42,45 @@ function processElement(n1, n2, container, parentComponent) {
     if (!n1) {
         mountElement(n2, container, parentComponent)
     } else {
-        patchElement(n1, n2)
+        patchElement(n1, n2, parentComponent)
     }
 }
 
-function patchElement(n1, n2) {
+function patchElement(n1, n2, parentComponent) {
     const oldProps = n1.props || {}
     const newProps = n2.props || {}
     const el = (n2.el = n1.el)
     patchProps(oldProps, newProps, el)
+    patchChildren(n1, n2, el, parentComponent)
+}
+
+function patchChildren(n1, n2, container, parentComponent) {
+    const preShapeFlag = n1.shapeFlag
+    const shapeFlag = n2.shapeFlag
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+        if (preShapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+            unmountChildren(container)
+        }
+        if (n1.children !== n2.children) {
+            setElementText(container, n2.children)
+        }
+    } else {
+        if (preShapeFlag & ShapeFlags.TEXT_CHILDREN) {
+            unmountChildren(container)
+            mountChildren(n2, container, parentComponent)
+        } else {
+            // TODO: array --> array
+        }
+    }
+}
+
+function unmountChildren(container) {
+    ;[...container.childNodes].forEach(node => {
+        container.removeChild(node)
+    })
+}
+function setElementText(el, text) {
+    el.textContent = text
 }
 
 function patchProps(oldProps, newProps, element) {
