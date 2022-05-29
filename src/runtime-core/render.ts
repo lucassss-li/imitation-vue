@@ -1,6 +1,7 @@
 import { effect } from '../index'
 import { ShapeFlags } from '../shared/ShapeFlag'
 import { createComponentInstance, setupComponent } from './component'
+import { queueJobs } from './scheduler'
 import { Fragment, Text, createTextVNode } from './VNode'
 
 export function render(vNode, container) {
@@ -290,26 +291,33 @@ function mountComponent(vNode, container, parentComponent, anchor) {
     setupRenderEffect(instance, container, vNode, anchor)
 }
 function setupRenderEffect(instance, container, vNode, anchor) {
-    instance.update = effect(() => {
-        if (!instance.mounted) {
-            const { proxy } = instance
-            const subTree = (instance.subTree = instance.render.call(proxy))
-            patch(null, subTree, container, instance, anchor)
-            vNode.el = subTree.el
-            instance.mounted = true
-        } else {
-            const { next, vNode } = instance
-            if (next) {
-                next.el = vNode.el
-                updateComponentPreRender(instance, next)
+    instance.update = effect(
+        () => {
+            if (!instance.mounted) {
+                const { proxy } = instance
+                const subTree = (instance.subTree = instance.render.call(proxy))
+                patch(null, subTree, container, instance, anchor)
+                vNode.el = subTree.el
+                instance.mounted = true
+            } else {
+                const { next, vNode } = instance
+                if (next) {
+                    next.el = vNode.el
+                    updateComponentPreRender(instance, next)
+                }
+                const { proxy } = instance
+                const preTree = instance.subTree
+                const subTree = (instance.subTree = instance.render.call(proxy))
+                patch(preTree, subTree, container, instance, anchor)
+                vNode.el = subTree.el
             }
-            const { proxy } = instance
-            const preTree = instance.subTree
-            const subTree = (instance.subTree = instance.render.call(proxy))
-            patch(preTree, subTree, container, instance, anchor)
-            vNode.el = subTree.el
-        }
-    })
+        },
+        {
+            scheduler() {
+                queueJobs(instance.update)
+            },
+        },
+    )
 }
 
 function updateComponentPreRender(instance, nextVNode) {
