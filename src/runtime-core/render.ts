@@ -255,16 +255,42 @@ function mountChildren(vNode, container, parentComponent, anchor) {
 }
 
 function processComponent(n1, n2, container, parentComponent, anchor) {
-    mountComponent(n2, container, parentComponent, anchor)
+    if (!n1) {
+        mountComponent(n2, container, parentComponent, anchor)
+    } else {
+        updateComponent(n1, n2)
+    }
+}
+function updateComponent(n1, n2) {
+    if (shouldUpdateComponent(n1, n2)) {
+        const instance = (n2.component = n1.component)
+        instance.next = n2
+        instance.update()
+    } else {
+        n2.el = n1.el
+        n2.component = n1.component
+    }
+}
+
+function shouldUpdateComponent(n1, n2) {
+    const { props: preProps } = n1
+    const { props: nextProps } = n2
+    for (const key in nextProps) {
+        if (nextProps[key] !== preProps[key]) {
+            return true
+        }
+    }
+    return false
 }
 
 function mountComponent(vNode, container, parentComponent, anchor) {
     const instance = createComponentInstance(vNode, parentComponent)
+    vNode.component = instance
     setupComponent(instance)
     setupRenderEffect(instance, container, vNode, anchor)
 }
 function setupRenderEffect(instance, container, vNode, anchor) {
-    effect(() => {
+    instance.update = effect(() => {
         if (!instance.mounted) {
             const { proxy } = instance
             const subTree = (instance.subTree = instance.render.call(proxy))
@@ -272,6 +298,11 @@ function setupRenderEffect(instance, container, vNode, anchor) {
             vNode.el = subTree.el
             instance.mounted = true
         } else {
+            const { next, vNode } = instance
+            if (next) {
+                next.el = vNode.el
+                updateComponentPreRender(instance, next)
+            }
             const { proxy } = instance
             const preTree = instance.subTree
             const subTree = (instance.subTree = instance.render.call(proxy))
@@ -279,6 +310,12 @@ function setupRenderEffect(instance, container, vNode, anchor) {
             vNode.el = subTree.el
         }
     })
+}
+
+function updateComponentPreRender(instance, nextVNode) {
+    instance.vNode = nextVNode
+    instance.next = null
+    instance.props = nextVNode.props
 }
 
 function getSequence(arr: number[]): number[] {

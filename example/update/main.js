@@ -1,5 +1,6 @@
 import { createApp } from '../../dist/vue-esm.js'
-import ArrayToText from './updateElement.js'
+import updateElement from './updateElement.js'
+import updateComponent from './updateComponent.js'
 
 const rootContainer = document.querySelector('#app')
-createApp(ArrayToText).mount(rootContainer)
+createApp(updateComponent).mount(rootContainer)
