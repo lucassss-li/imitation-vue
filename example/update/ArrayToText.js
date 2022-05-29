@@ -4,7 +4,27 @@ export default {
         return h(
             'div',
             { onClick: this.change },
-            this.count ? 'textChild' : [h('div', {}, 'aaa'), 'b'],
+            this.count
+                ? [
+                      h('div', { key: 'a' }, 'a'),
+                      h('div', { key: 'b' }, 'b'),
+                      h('div', { key: 'c' }, 'c'),
+                      h('div', { key: 'd' }, 'd'),
+                      h('div', { key: 'e' }, 'e'),
+                      h('div', { key: 'z' }, 'z'),
+                      h('div', { key: 'f' }, 'f'),
+                      h('div', { key: 'g' }, 'g'),
+                  ]
+                : [
+                      h('div', { key: 'a' }, 'a'),
+                      h('div', { key: 'b' }, 'b'),
+                      h('div', { key: 'd' }, 'd'),
+                      h('div', { key: 'c' }, 'c'),
+                      h('div', { key: 'y' }, 'y'),
+                      h('div', { key: 'e' }, 'e'),
+                      h('div', { key: 'f' }, 'f'),
+                      h('div', { key: 'g' }, 'g'),
+                  ],
         )
     },
     setup() {
