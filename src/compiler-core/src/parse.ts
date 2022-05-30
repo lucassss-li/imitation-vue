@@ -20,8 +20,25 @@ function parseChildren(context) {
             node = parseElement(context)
         }
     }
+    if (!node) {
+        node = parseText(context)
+    }
     nodes.push(node)
     return nodes
+}
+
+function parseText(context) {
+    const content = parseTextData(context, context.source.length)
+    return {
+        type: NodeTypes.TEXT,
+        content,
+    }
+}
+
+function parseTextData(context: any, length: number) {
+    const content = context.source.slice(0, length)
+    advanceBy(context, length)
+    return content
 }
 
 function parseElement(context) {
@@ -46,9 +63,9 @@ function parseInterpolation(context) {
     const closeDelimiter = '}}'
     advanceBy(context, openDelimiter.length)
     const closeIndex = context.source.indexOf(closeDelimiter)
-    const rawContent = context.source.slice(0, closeIndex)
+    const rawContent = parseTextData(context, closeIndex)
     const content = rawContent.trim()
-    advanceBy(context, closeIndex + closeDelimiter.length)
+    advanceBy(context, closeDelimiter.length)
     return {
         type: NodeTypes.INTERPOLATION,
         content: {
