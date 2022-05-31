@@ -7,28 +7,61 @@ const enum TagType {
 
 export function baseParse(content: string) {
     const context = createParserContext(content)
-    return createRoot(parseChildren(context))
+    return createRoot(parseChildren(context, null))
 }
 
-function parseChildren(context) {
+function parseChildren(context, closeTag) {
     const nodes: any[] = []
-    let node
-    if (context.source.startsWith('{{')) {
-        node = parseInterpolation(context)
-    } else if (context.source[0] === '<') {
-        if (/[a-z]/i.test(context.source[1])) {
-            node = parseElement(context)
+    while (!isEnd(context, closeTag)) {
+        let node
+        if (context.source.startsWith('{{')) {
+            node = parseInterpolation(context)
+        } else if (context.source[0] === '<') {
+            if (/[a-z]/i.test(context.source[1])) {
+                node = parseElement(context)
+            }
         }
+        if (!node) {
+            node = parseText(context)
+        }
+        nodes.push(node)
     }
-    if (!node) {
-        node = parseText(context)
-    }
-    nodes.push(node)
     return nodes
 }
 
+function isEnd(context, closeTag) {
+    const { source, ancestors } = context
+    if (/<\/[a-z]+>/.test(source)) {
+        for (let i = 0; i < ancestors.length; i++) {
+            const tag = ancestors[i].tag
+            if (startsWithEndTag(source, tag)) {
+                return true
+            }
+        }
+    }
+    if (closeTag && source.startsWith(`</${closeTag}>`)) {
+        return true
+    }
+    return !source
+}
+
+function startsWithEndTag(source, tag) {
+    return (
+        source.startsWith('</') &&
+        source.slice(2, 2 + tag.length).toLowerCase() === tag.toLowerCase()
+    )
+}
+
 function parseText(context) {
-    const content = parseTextData(context, context.source.length)
+    let endIndex = context.source.length
+    const endTokens = ['{{', '<']
+    for (let i = endTokens.length - 1; i >= 0; i--) {
+        const index = context.source.indexOf(endTokens[i])
+        if (index !== -1) {
+            endIndex = Math.min(index, endIndex)
+        }
+    }
+    const content = parseTextData(context, endIndex)
     return {
         type: NodeTypes.TEXT,
         content,
@@ -42,15 +75,22 @@ function parseTextData(context: any, length: number) {
 }
 
 function parseElement(context) {
-    const element = parseTag(context, TagType.START)
-    parseTag(context, TagType.END)
+    const element: any = parseTag(context, TagType.START)
+    context.ancestors.push(element)
+    element.children = parseChildren(context, element.tag)
+    context.ancestors.pop()
+    if (startsWithEndTag(context.source, element.tag)) {
+        parseTag(context, TagType.END)
+    } else {
+        throw new Error('lack end tag')
+    }
     return element
 }
 
 function parseTag(context, type: TagType) {
     const match: any = /^<\/?([a-z]+?)>/i.exec(context.source)
     const tag = match[1]
-    advanceBy(context, tag.length + 2)
+    advanceBy(context, tag.length + (type === TagType.START ? 2 : 3))
     if (type === TagType.END) return
     return {
         type: NodeTypes.ELEMENT,
@@ -88,5 +128,6 @@ function advanceBy(context, length: number) {
 function createParserContext(content: string) {
     return {
         source: content,
+        ancestors: [],
     }
 }
