@@ -1,7 +1,6 @@
 {
     "name": "imitation-vue",
-    "version": "1.0.0",
-    "description": "学习vue3源码并实现简易版本",
+    "version": "0.0.0",
     "main": "index.js",
     "scripts": {
         "test": "jest",
@@ -36,6 +35,9 @@
     "lint-staged": {
         "*.ts?(x)": [
             "eslint",
+            "prettier --write"
+        ],
+        "*.(html|css|less|json)": [
             "prettier --write"
         ]
     }
