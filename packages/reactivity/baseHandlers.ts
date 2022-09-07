@@ -1,5 +1,6 @@
 import { isObject, isSymbol } from '../shared/index'
 import { makeMap } from '../shared/makeMap'
+import { track, trigger } from './effec'
 import {
     isReactive,
     reactive,
@@ -33,6 +34,7 @@ export const baseHandlers = {
         if (isObject(res) && !isReactive(res)) {
             res = reactive(res)
         }
+        track(target, key)
         return res
     },
     set(
@@ -41,6 +43,8 @@ export const baseHandlers = {
         value: unknown,
         receiver: object,
     ) {
-        return Reflect.set(target, key, toRaw(value), receiver)
+        const res = Reflect.set(target, key, toRaw(value), receiver)
+        trigger(target, key)
+        return res
     },
 }
